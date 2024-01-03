@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<head>
+  <title>Drag and Drop File Upload</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <link rel="shortcut icon" href="/assets/favicon.ico">
+</head>
+
+<body>
+  <h1>Drag and Drop File Upload</h1>
+  <div class="drop-zone">
+    <span class="drop-zone__prompt">Drop file here or click to upload</span>
+    <input type="file" name="myFile" class="drop-zone__input">
+    <div class="drop-zone__text-label" id="textLabel">No file selected</div>
+  </div>
+</body>
+
+<style>
+h1{
+  font-size: 40px;
+  color:white;
+  margin-left: 35%;
+}
+.drop-zone {
+    max-width: 300px;
+    height: 300px;
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-family: "Quicksand", sans-serif;
+    font-weight: 500;
+    font-size: 20px;
+    cursor: pointer;
+    color: whitesmoke;
+    border: 4px dashed #029500;
+    border-radius: 10px;
+    margin-top: 10%;
+    margin-left: 40%;
+    background-image: url("upload_logo.jpg");
+    background-repeat: no-repeat;
+    opacity: 0.6;
+    background-size: 100%;
+  }
+  
+  .drop-zone--over {
+    border-style: solid;
+  }
+  
+  .drop-zone__input {
+    display: none;
+  }
+  
+  .drop-zone__thumb {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: burlywood;
+    background-size: cover;
+    position: relative;
+  }
+  .drop-zone__prompt{
+  position: absolute;
+  font-size: 20px;
+  color:black;
+}
+  .drop-zone__thumb::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 5px 0;
+    color:burlywood;
+    background:white;
+    font-size: 14px;
+    text-align: center;
+  }
+    body{
+        background-image: url("upload1.jpg");
+        background-repeat: no-repeat;
+        background-size: 100%;
+        
+    }
+    .drop-zone__text-label{
+    font-size: 14px;
+    margin-top: 30%;
+    background-color: aliceblue;
+    text-align: center;
+    color: black;
+    background-size: cover;
+    position: absolute;
+  }
+</style>
+<script>
+  document.querySelectorAll(".drop-zone__input").forEach((inputElement) => {
+    const dropZoneElement = inputElement.closest(".drop-zone");
+    const textLabelElement = dropZoneElement.querySelector(".drop-zone__text-label");
+  
+    dropZoneElement.addEventListener("click", (e) => {
+      inputElement.click();
+    });
+  
+    inputElement.addEventListener("change", (e) => {
+      if (inputElement.files.length) {
+        updateThumbnail(dropZoneElement, inputElement.files[0]);
+        textLabelElement.textContent = `File name: ${inputElement.files[0].name} | Size: ${Math.round(inputElement.files[0].size / 1024)} KB`;
+        } else {
+          textLabelElement.textContent = "No file selected";
+        }
+    });
+  
+    dropZoneElement.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropZoneElement.classList.add("drop-zone--over");
+    });
+  
+    ["dragleave", "dragend"].forEach((type) => {
+      dropZoneElement.addEventListener(type, (e) => {
+        dropZoneElement.classList.remove("drop-zone--over");
+      });
+    });
+  
+    dropZoneElement.addEventListener("drop", (e) => {
+      e.preventDefault();
+  
+      if (e.dataTransfer.files.length) {
+        inputElement.files = e.dataTransfer.files;
+        updateThumbnail(dropZoneElement, e.dataTransfer.files[0]);
+
+        textLabelElement.textContent = `File name: ${inputElement.files[0].name} | Size: ${Math.round(inputElement.files[0].size / 1024)} KB`;
+        } else {
+          textLabelElement.textContent = "No file selected";
+        }
+  
+      dropZoneElement.classList.remove("drop-zone--over");
+    });
+  });
+  function updateThumbnail(dropZoneElement, file) {
+    let thumbnailElement = dropZoneElement.querySelector(".drop-zone__thumb");
+  
+    // First time - remove the prompt
+    if (dropZoneElement.querySelector(".drop-zone__prompt")) {
+      dropZoneElement.querySelector(".drop-zone__prompt").remove();
+    }
+  
+    // First time - there is no thumbnail element, so lets create it
+    if (!thumbnailElement) {
+      thumbnailElement = document.createElement("div");
+      thumbnailElement.classList.add("drop-zone__thumb");
+      dropZoneElement.appendChild(thumbnailElement);
+    }
+  
+    thumbnailElement.dataset.label = file.name;
+  
+    // Show thumbnail for image files
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        thumbnailElement.style.backgroundImage = `url('${reader.result}')`;
+      };
+    } else {
+      thumbnailElement.style.backgroundImage = null;
+    }
+  }
+</script>
+<!-- submitted by 22K65A1402 -->
